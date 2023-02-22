@@ -23,3 +23,15 @@ public struct Chip {
         sleep(UInt32(soderingTime))
     }
 }
+
+class Storage: Thread {
+    
+}
+
+class Generating: Thread {
+    
+}
+
+class Worker: Thread {
+    
+}
