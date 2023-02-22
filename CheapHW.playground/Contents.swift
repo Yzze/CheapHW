@@ -58,7 +58,21 @@ class Storage: Thread {
 }
 
 class Generating: Thread {
+    private let storage: Storage
+    private var timer = Timer()
     
+    init(storage: Storage) {
+        self.storage = storage
+    }
+    
+    override func createTimer() {
+        timer = Timer(timeInterval: 2, target: self, selector: #selector(), userInfo: nil, repeats: true)
+        RunLoop.current.add(timer, forMode: .common)
+        RunLoop.current.run(until: Date.init(timeIntervalSinceNow: 20))
+    }
+    @objc func startTimer() {
+        storage.push(item: Chip.make())
+    }
 }
 
 class Worker: Thread {
