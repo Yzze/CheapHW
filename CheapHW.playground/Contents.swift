@@ -27,7 +27,7 @@ public struct Chip {
 class Storage: Thread {
     private var count = 0
     var storage = [Chip]()
-    var isAvaibale = false
+    var isAvailable = false
     var condition = NSCondition()
     
     var isEmpty: Bool {
@@ -36,21 +36,21 @@ class Storage: Thread {
     
     func pop() -> Chip {
         condition.lock()
-        if !isAvaibale {
+        if !isAvailable {
             condition.wait()
             print("Режим ожидания")
         }
-        isAvaibale = false
+        isAvailable = false
         condition.unlock()
         return storage.removeLast()
     }
     
     func push(item: Chip) {
         condition.lock()
-        isAvaibale = true
+        isAvailable = true
         storage.append(item)
         count += 1
-        print("Чип добавлен в хранилище")
+        print("Чип \(count) добавлен в хранилище")
         condition.signal()
         print("Обработка")
         condition.unlock()
@@ -65,7 +65,7 @@ class Generating: Thread {
         self.storage = storage
     }
     
-    func createTimer() {
+    override func main() {
         timer = Timer(timeInterval: 2, target: self, selector: #selector(startTimer), userInfo: nil, repeats: true)
         RunLoop.current.add(timer, forMode: .common)
         RunLoop.current.run(until: Date.init(timeIntervalSinceNow: 20))
@@ -82,10 +82,18 @@ class Worker: Thread {
         self.storage = storage
     }
     
-    func chipSoldering() {
-        if !storage.isEmpty || !storage.isAvaibale {
+    override func main() {
+        while storage.isEmpty || storage.isAvailable {
             storage.pop().sodering()
             print("Припайка микросхемы")
         }
     }
 }
+
+let storage = Storage()
+let generationThread = Generating(storage: storage)
+let workerThread = Worker(storage: storage)
+generationThread.start()
+workerThread.start()
+sleep(20)
+generationThread.cancel()
