@@ -65,8 +65,8 @@ class Generating: Thread {
         self.storage = storage
     }
     
-    override func createTimer() {
-        timer = Timer(timeInterval: 2, target: self, selector: #selector(), userInfo: nil, repeats: true)
+    func createTimer() {
+        timer = Timer(timeInterval: 2, target: self, selector: #selector(startTimer), userInfo: nil, repeats: true)
         RunLoop.current.add(timer, forMode: .common)
         RunLoop.current.run(until: Date.init(timeIntervalSinceNow: 20))
     }
@@ -76,5 +76,16 @@ class Generating: Thread {
 }
 
 class Worker: Thread {
+    private var storage: Storage
     
+    init(storage: Storage) {
+        self.storage = storage
+    }
+    
+    func chipSoldering() {
+        if !storage.isEmpty || !storage.isAvaibale {
+            storage.pop().sodering()
+            print("Припайка микросхемы")
+        }
+    }
 }
