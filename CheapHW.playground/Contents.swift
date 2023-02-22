@@ -25,7 +25,36 @@ public struct Chip {
 }
 
 class Storage: Thread {
+    private var count = 0
+    var storage = [Chip]()
+    var isAvaibale = false
+    var condition = NSCondition()
     
+    var isEmpty: Bool {
+        storage.isEmpty
+    }
+    
+    func pop() -> Chip {
+        condition.lock()
+        if !isAvaibale {
+            condition.wait()
+            print("Режим ожидания")
+        }
+        isAvaibale = false
+        condition.unlock()
+        return storage.removeLast()
+    }
+    
+    func push(item: Chip) {
+        condition.lock()
+        isAvaibale = true
+        storage.append(item)
+        count += 1
+        print("Чип добавлен в хранилище")
+        condition.signal()
+        print("Обработка")
+        condition.unlock()
+    }
 }
 
 class Generating: Thread {
